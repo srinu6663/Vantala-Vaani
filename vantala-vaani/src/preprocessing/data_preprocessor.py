@@ -13,7 +13,15 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.core.utils import RecipeUtils
-from googletrans import Translator
+
+# Try to import googletrans, fallback if not available
+try:
+    from googletrans import Translator as GoogleTranslator
+    TRANSLATION_AVAILABLE = True
+except ImportError:
+    TRANSLATION_AVAILABLE = False
+    GoogleTranslator = None
+
 import unicodedata
 import logging
 
@@ -37,7 +45,19 @@ class RecipeDataPreprocessor:
     def __init__(self, csv_file_path: str = "recipes.csv"):
         self.csv_file_path = csv_file_path
         self.recipe_utils = RecipeUtils()
-        self.translator = Translator()
+
+        # Initialize translator if available
+        if TRANSLATION_AVAILABLE and GoogleTranslator:
+            try:
+                self.translator = GoogleTranslator()
+                self.translation_available = True
+            except Exception:
+                self.translator = None
+                self.translation_available = False
+        else:
+            self.translator = None
+            self.translation_available = False
+
         self.processed_recipes = []
         self.chat_pairs = []
         self.duplicate_count = 0

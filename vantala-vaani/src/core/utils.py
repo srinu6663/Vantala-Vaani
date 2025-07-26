@@ -2,15 +2,31 @@ import re
 import csv
 import os
 from datetime import datetime
-from googletrans import Translator
 import streamlit as st
 from pathlib import Path
+
+# Try to import googletrans, fallback if not available
+try:
+    from googletrans import Translator as GoogleTranslator
+    TRANSLATION_AVAILABLE = True
+except ImportError:
+    GoogleTranslator = None
+    TRANSLATION_AVAILABLE = False
 
 class RecipeUtils:
     """Utility class for recipe collection functionality"""
 
     def __init__(self):
-        self.translator = Translator()
+        self.translation_available = TRANSLATION_AVAILABLE
+        if self.translation_available and GoogleTranslator:
+            try:
+                self.translator = GoogleTranslator()
+            except Exception:
+                self.translator = None
+                self.translation_available = False
+        else:
+            self.translator = None
+
         self.telugu_pattern = re.compile(r'[\u0C00-\u0C7F]')
         # Set paths relative to project root
         self.project_root = Path(__file__).parent.parent.parent
@@ -23,6 +39,10 @@ class RecipeUtils:
 
     def translate_to_telugu(self, text):
         """Translate English text to Telugu"""
+        if not self.translation_available or not self.translator:
+            st.warning("⚠️ Translation service not available. Please enter text in Telugu directly.")
+            return text
+
         try:
             if self.detect_language(text) == 'english' and text.strip():
                 result = self.translator.translate(text, src='en', dest='te')
