@@ -27,6 +27,27 @@ def main():
     if 'saved_recipes' not in st.session_state:
         st.session_state.saved_recipes = []
 
+    # Debug information (only show in development)
+    if st.checkbox("🔧 Debug Info (Development Only)"):
+        st.write(f"Session state has {len(st.session_state.saved_recipes)} recipes")
+        if st.session_state.saved_recipes:
+            st.write("Latest recipe timestamp:", st.session_state.saved_recipes[-1]['Timestamp'])
+
+        # Check CSV file status
+        data_dir = project_root / "data"
+        csv_path = data_dir / "recipes.csv"
+        if csv_path.exists():
+            import os
+            file_size = os.path.getsize(csv_path)
+            st.write(f"CSV file exists, size: {file_size} bytes")
+            try:
+                df = pd.read_csv(csv_path)
+                st.write(f"CSV has {len(df)} rows")
+            except Exception as e:
+                st.write(f"CSV read error: {e}")
+        else:
+            st.write("CSV file does not exist")
+
     # Custom CSS for Telugu font support
     st.markdown("""
     <style>
@@ -179,8 +200,15 @@ def main():
                             original_steps
                         ]
 
-                        # Save to CSV
-                        file_path = recipe_utils.save_recipe_to_csv(recipe_data)
+                        # Save to CSV (may not persist on Streamlit Cloud)
+                        try:
+                            file_path = recipe_utils.save_recipe_to_csv(recipe_data)
+                            if file_path:
+                                st.info(f"📁 Attempted to save to: {file_path}")
+                            else:
+                                st.warning("⚠️ CSV save failed - using session storage only")
+                        except Exception as csv_error:
+                            st.warning(f"⚠️ CSV save error: {csv_error} - using session storage only")
 
                         # Also save to session state for immediate display
                         recipe_dict = {
@@ -198,6 +226,7 @@ def main():
                         # Success message
                         st.success("✅ రెసిపీ విజయవంతంగా సేవ్ అయ్యింది! / Recipe saved successfully!")
                         st.info(f"📊 Total recipes in this session: {len(st.session_state.saved_recipes)}")
+                        st.info("💡 Note: On Streamlit Cloud, use 'Download CSV' to save permanently!")
 
                     except Exception as e:
                         st.error(f"❌ Error saving recipe: {e}")
@@ -206,31 +235,32 @@ def main():
 
     # View saved recipes
     if st.checkbox("📋 Saved Recipes చూడండి / View Saved Recipes"):
-        # First check session state recipes
+        # Always show session state recipes first
         if st.session_state.saved_recipes:
-            st.subheader(f"📊 Total Recipes in Current Session: {len(st.session_state.saved_recipes)}")
+            st.success(f"📊 Current Session Recipes: {len(st.session_state.saved_recipes)}")
 
             # Add download button for CSV
-            if st.session_state.saved_recipes:
-                # Create CSV data for download
-                import io
-                output = io.StringIO()
-                headers = ['Timestamp', 'Recipe Name (Telugu)', 'Ingredients (Telugu)', 'Steps (Telugu)',
-                          'Original Language', 'Original Recipe Name', 'Original Ingredients', 'Original Steps']
+            # Create CSV data for download
+            import io
+            output = io.StringIO()
+            headers = ['Timestamp', 'Recipe Name (Telugu)', 'Ingredients (Telugu)', 'Steps (Telugu)',
+                      'Original Language', 'Original Recipe Name', 'Original Ingredients', 'Original Steps']
 
-                writer = csv.writer(output)
-                writer.writerow(headers)
-                for recipe in st.session_state.saved_recipes:
-                    writer.writerow([recipe[header] for header in headers])
+            writer = csv.writer(output)
+            writer.writerow(headers)
+            for recipe in st.session_state.saved_recipes:
+                writer.writerow([recipe[header] for header in headers])
 
-                csv_data = output.getvalue()
-                st.download_button(
-                    label="📥 Download Recipes as CSV",
-                    data=csv_data,
-                    file_name=f"vantala_vaani_recipes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                    mime="text/csv"
-                )
+            csv_data = output.getvalue()
+            st.download_button(
+                label="📥 Download All Recipes as CSV",
+                data=csv_data,
+                file_name=f"vantala_vaani_recipes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv",
+                help="Download your recipes to save them permanently on your computer"
+            )
 
+            st.markdown("### 🍛 Your Recipes:")
             # Display recipes from session state
             for idx, recipe in enumerate(st.session_state.saved_recipes):
                 with st.expander(f"🍛 {recipe['Recipe Name (Telugu)']} ({recipe['Timestamp']})"):
@@ -250,17 +280,28 @@ def main():
                             st.write(f"**Steps:** {recipe['Original Steps']}")
                         else:
                             st.info("Originally submitted in Telugu")
-        else:
-            # Also check if there's a CSV file (for backward compatibility)
-            data_dir = project_root / "data"
-            csv_path = data_dir / "recipes.csv"
-            if csv_path.exists():
-                try:
-                    df = pd.read_csv(csv_path)
-                    if not df.empty:
-                        st.subheader(f"📊 Previously Saved Recipes: {len(df)}")
-                        st.info("ℹ️ Note: These are from previous sessions. New recipes will appear above.")
 
+            # Clear session recipes button
+            if st.button("🗑️ Clear All Session Recipes"):
+                st.session_state.saved_recipes = []
+                st.success("All session recipes cleared!")
+                st.experimental_rerun()
+
+        else:
+            st.info("📝 No recipes in current session. Add your first recipe above!")
+
+        # Separator
+        st.markdown("---")
+
+        # Check for any existing CSV file (from previous attempts)
+        data_dir = project_root / "data"
+        csv_path = data_dir / "recipes.csv"
+        if csv_path.exists():
+            try:
+                df = pd.read_csv(csv_path)
+                if not df.empty:
+                    st.info(f"� Found {len(df)} recipe(s) from previous sessions (may not persist)")
+                    with st.expander("📋 View Previous Session Data"):
                         # Display CSV recipes
                         for idx, row in df.iterrows():
                             with st.expander(f"🍛 {row['Recipe Name (Telugu)']} ({row['Timestamp']})"):
@@ -280,20 +321,18 @@ def main():
                                         st.write(f"**Steps:** {row['Original Steps']}")
                                     else:
                                         st.info("Originally submitted in Telugu")
-                    else:
-                        st.info("📝 No recipes saved yet. Add your first recipe above!")
-                except Exception as e:
-                    st.warning(f"Could not read previous recipes: {e}")
-                    st.info("📝 No recipes saved yet. Add your first recipe above!")
-            else:
-                st.info("📝 No recipes saved yet. Add your first recipe above!")
+            except Exception as e:
+                st.warning(f"Could not read CSV file: {e}")
 
-        # Clear session recipes button
-        if st.session_state.saved_recipes:
-            if st.button("🗑️ Clear Session Recipes"):
-                st.session_state.saved_recipes = []
-                st.success("Session recipes cleared!")
-                st.experimental_rerun()
+        # Information about data persistence
+        st.markdown("### ℹ️ Important Notes:")
+        st.info("""
+        **Data Storage on Streamlit Cloud:**
+        - ✅ Recipes are stored in your browser session (visible immediately)
+        - 📥 Use 'Download CSV' to save permanently to your computer
+        - ⚠️ Data may not persist between app restarts on cloud platforms
+        - 💾 For permanent storage, download the CSV file after each session
+        """)
 
 if __name__ == "__main__":
     main()
