@@ -97,7 +97,7 @@ class RecipeUtils:
         return text
 
     def save_recipe_to_csv(self, recipe_data, filename='recipes.csv'):
-        """Save recipe data to CSV file"""
+        """Save recipe data to CSV file with proper escaping"""
         file_path = self.data_dir / filename
         file_exists = file_path.exists()
 
@@ -107,17 +107,30 @@ class RecipeUtils:
         ]
 
         try:
+            # Clean the recipe data to remove problematic characters
+            cleaned_data = []
+            for item in recipe_data:
+                if isinstance(item, str):
+                    # Replace newlines with spaces and clean up the text
+                    cleaned_item = item.replace('\n', ' ').replace('\r', ' ')
+                    # Remove multiple spaces
+                    cleaned_item = ' '.join(cleaned_item.split())
+                    cleaned_data.append(cleaned_item)
+                else:
+                    cleaned_data.append(item)
+
             with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
+                writer = csv.writer(file, quoting=csv.QUOTE_ALL)  # Quote all fields
 
                 if not file_exists:
                     writer.writerow(headers)
 
-                writer.writerow(recipe_data)
+                writer.writerow(cleaned_data)
 
             return file_path
         except Exception as e:
             st.error(f"Error saving to CSV: {e}")
+            return None
             return None
 
     def validate_recipe_input(self, recipe_name, ingredients, steps):
