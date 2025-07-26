@@ -26,13 +26,13 @@ class RecipeUtils:
                 self.translation_available = False
         else:
             self.translator = None
-        
+
         self.telugu_pattern = re.compile(r'[\u0C00-\u0C7F]')
         # Set paths relative to project root
         self.project_root = Path(__file__).parent.parent.parent
         self.data_dir = self.project_root / "data"
         self.data_dir.mkdir(exist_ok=True)
-        
+
         # Basic cooking terms dictionary for fallback translation
         self.basic_translations = {
             'rice': 'అన్నం', 'oil': 'నూనె', 'salt': 'ఉప్పు', 'water': 'నీరు',
@@ -53,11 +53,11 @@ class RecipeUtils:
         """Basic fallback translation using dictionary"""
         if not text:
             return text
-            
+
         translated_text = text.lower()
         for english_word, telugu_word in self.basic_translations.items():
             translated_text = translated_text.replace(english_word, telugu_word)
-        
+
         # If we made some translations, show a notice
         if translated_text != text.lower():
             st.info("🔄 Using basic translation for common cooking terms.")
@@ -68,11 +68,11 @@ class RecipeUtils:
         """Translate English text to Telugu"""
         if not text or not text.strip():
             return text
-            
+
         # If input is already Telugu, return as-is
         if self.detect_language(text) == 'telugu':
             return text
-            
+
         # Try Google Translate first if available
         if self.translation_available and self.translator:
             try:
@@ -84,16 +84,16 @@ class RecipeUtils:
                 if not hasattr(st.session_state, 'translation_error_shown'):
                     st.warning(f"⚠️ Google Translate temporarily unavailable. Using basic translation.")
                     st.session_state.translation_error_shown = True
-        
+
         # Fallback to basic translation
         if self.detect_language(text) == 'english':
             return self.basic_translate(text)
-            
+
         # If nothing else worked, show warning only once
         if not hasattr(st.session_state, 'translation_warning_shown'):
             st.info("💡 For best results, enter your recipe directly in Telugu.")
             st.session_state.translation_warning_shown = True
-        
+
         return text
 
     def save_recipe_to_csv(self, recipe_data, filename='recipes.csv'):
