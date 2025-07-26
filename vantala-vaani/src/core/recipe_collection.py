@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 import os
 import sys
+import csv
 from pathlib import Path
 
 # Add project root to Python path
@@ -21,6 +22,10 @@ def main():
         page_icon="🍛",
         layout="wide"
     )
+
+    # Initialize session state for recipes if not exists
+    if 'saved_recipes' not in st.session_state:
+        st.session_state.saved_recipes = []
 
     # Custom CSS for Telugu font support
     st.markdown("""
@@ -177,8 +182,22 @@ def main():
                         # Save to CSV
                         file_path = recipe_utils.save_recipe_to_csv(recipe_data)
 
+                        # Also save to session state for immediate display
+                        recipe_dict = {
+                            'Timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            'Recipe Name (Telugu)': telugu_recipe_name,
+                            'Ingredients (Telugu)': telugu_ingredients,
+                            'Steps (Telugu)': telugu_steps,
+                            'Original Language': original_language,
+                            'Original Recipe Name': original_recipe,
+                            'Original Ingredients': original_ingredients,
+                            'Original Steps': original_steps
+                        }
+                        st.session_state.saved_recipes.append(recipe_dict)
+
                         # Success message
                         st.success("✅ రెసిపీ విజయవంతంగా సేవ్ అయ్యింది! / Recipe saved successfully!")
+                        st.info(f"📊 Total recipes in this session: {len(st.session_state.saved_recipes)}")
 
                     except Exception as e:
                         st.error(f"❌ Error saving recipe: {e}")
@@ -187,36 +206,94 @@ def main():
 
     # View saved recipes
     if st.checkbox("📋 Saved Recipes చూడండి / View Saved Recipes"):
-        data_dir = project_root / "data"
-        csv_path = data_dir / "recipes.csv"
-        if csv_path.exists():
-            df = pd.read_csv(csv_path)
-            if not df.empty:
-                st.subheader(f"📊 Total Recipes: {len(df)}")
+        # First check session state recipes
+        if st.session_state.saved_recipes:
+            st.subheader(f"📊 Total Recipes in Current Session: {len(st.session_state.saved_recipes)}")
+            
+            # Add download button for CSV
+            if st.session_state.saved_recipes:
+                # Create CSV data for download
+                import io
+                output = io.StringIO()
+                headers = ['Timestamp', 'Recipe Name (Telugu)', 'Ingredients (Telugu)', 'Steps (Telugu)',
+                          'Original Language', 'Original Recipe Name', 'Original Ingredients', 'Original Steps']
+                
+                writer = csv.writer(output)
+                writer.writerow(headers)
+                for recipe in st.session_state.saved_recipes:
+                    writer.writerow([recipe[header] for header in headers])
+                
+                csv_data = output.getvalue()
+                st.download_button(
+                    label="📥 Download Recipes as CSV",
+                    data=csv_data,
+                    file_name=f"vantala_vaani_recipes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv"
+                )
 
-                # Display recipes
-                for idx, row in df.iterrows():
-                    with st.expander(f"🍛 {row['Recipe Name (Telugu)']} ({row['Timestamp']})"):
-                        col1, col2 = st.columns(2)
+            # Display recipes from session state
+            for idx, recipe in enumerate(st.session_state.saved_recipes):
+                with st.expander(f"🍛 {recipe['Recipe Name (Telugu)']} ({recipe['Timestamp']})"):
+                    col1, col2 = st.columns(2)
 
-                        with col1:
-                            st.markdown("**తెలుగు వెర్షన్ / Telugu Version:**")
-                            st.write(f"**వంటకం:** {row['Recipe Name (Telugu)']}")
-                            st.write(f"**వస్తువులు:** {row['Ingredients (Telugu)']}")
-                            st.write(f"**విధానం:** {row['Steps (Telugu)']}")
+                    with col1:
+                        st.markdown("**తెలుగు వెర్షన్ / Telugu Version:**")
+                        st.write(f"**వంటకం:** {recipe['Recipe Name (Telugu)']}")
+                        st.write(f"**వస్తువులు:** {recipe['Ingredients (Telugu)']}")
+                        st.write(f"**విధానం:** {recipe['Steps (Telugu)']}")
 
-                        with col2:
-                            if row['Original Language'] == 'English':
-                                st.markdown("**Original English Version:**")
-                                st.write(f"**Recipe:** {row['Original Recipe Name']}")
-                                st.write(f"**Ingredients:** {row['Original Ingredients']}")
-                                st.write(f"**Steps:** {row['Original Steps']}")
-                            else:
-                                st.info("Originally submitted in Telugu")
+                    with col2:
+                        if recipe['Original Language'] == 'English':
+                            st.markdown("**Original English Version:**")
+                            st.write(f"**Recipe:** {recipe['Original Recipe Name']}")
+                            st.write(f"**Ingredients:** {recipe['Original Ingredients']}")
+                            st.write(f"**Steps:** {recipe['Original Steps']}")
+                        else:
+                            st.info("Originally submitted in Telugu")
+        else:
+            # Also check if there's a CSV file (for backward compatibility)
+            data_dir = project_root / "data"
+            csv_path = data_dir / "recipes.csv"
+            if csv_path.exists():
+                try:
+                    df = pd.read_csv(csv_path)
+                    if not df.empty:
+                        st.subheader(f"📊 Previously Saved Recipes: {len(df)}")
+                        st.info("ℹ️ Note: These are from previous sessions. New recipes will appear above.")
+
+                        # Display CSV recipes
+                        for idx, row in df.iterrows():
+                            with st.expander(f"🍛 {row['Recipe Name (Telugu)']} ({row['Timestamp']})"):
+                                col1, col2 = st.columns(2)
+
+                                with col1:
+                                    st.markdown("**తెలుగు వెర్షన్ / Telugu Version:**")
+                                    st.write(f"**వంటకం:** {row['Recipe Name (Telugu)']}")
+                                    st.write(f"**వస్తువులు:** {row['Ingredients (Telugu)']}")
+                                    st.write(f"**విధానం:** {row['Steps (Telugu)']}")
+
+                                with col2:
+                                    if row['Original Language'] == 'English':
+                                        st.markdown("**Original English Version:**")
+                                        st.write(f"**Recipe:** {row['Original Recipe Name']}")
+                                        st.write(f"**Ingredients:** {row['Original Ingredients']}")
+                                        st.write(f"**Steps:** {row['Original Steps']}")
+                                    else:
+                                        st.info("Originally submitted in Telugu")
+                    else:
+                        st.info("📝 No recipes saved yet. Add your first recipe above!")
+                except Exception as e:
+                    st.warning(f"Could not read previous recipes: {e}")
+                    st.info("📝 No recipes saved yet. Add your first recipe above!")
             else:
                 st.info("📝 No recipes saved yet. Add your first recipe above!")
-        else:
-            st.info("📝 No recipes saved yet. Add your first recipe above!")
+                
+        # Clear session recipes button
+        if st.session_state.saved_recipes:
+            if st.button("🗑️ Clear Session Recipes"):
+                st.session_state.saved_recipes = []
+                st.success("Session recipes cleared!")
+                st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
