@@ -26,31 +26,75 @@ class RecipeUtils:
                 self.translation_available = False
         else:
             self.translator = None
-
+        
         self.telugu_pattern = re.compile(r'[\u0C00-\u0C7F]')
         # Set paths relative to project root
         self.project_root = Path(__file__).parent.parent.parent
         self.data_dir = self.project_root / "data"
         self.data_dir.mkdir(exist_ok=True)
+        
+        # Basic cooking terms dictionary for fallback translation
+        self.basic_translations = {
+            'rice': 'అన్నం', 'oil': 'నూనె', 'salt': 'ఉప్పు', 'water': 'నీరు',
+            'onion': 'ఉల్లిపాయ', 'garlic': 'వెల్లుల్లి', 'ginger': 'అల్లం',
+            'tomato': 'టొమాటో', 'green chili': 'పచ్చిమిరపకాయ', 'red chili': 'ఎర్రమిరపకాయ',
+            'turmeric': 'పసుపు', 'coriander': 'ధనియాలు', 'cumin': 'జీలకర్ర',
+            'mustard seeds': 'ఆవాలు', 'curry leaves': 'కరివేపాకు', 'coconut': 'కొబ్బరి',
+            'dal': 'పప్పు', 'lentils': 'పప్పు', 'chicken': 'కోడిమాంసం', 'fish': 'చేప',
+            'mutton': 'మటన్', 'vegetables': 'కూరగాయలు', 'potato': 'బంగాళాదుంప',
+            'carrot': 'కేరట్', 'beans': 'బీన్స్', 'cabbage': 'కాబేజీ'
+        }
 
     def detect_language(self, text):
         """Detect if text contains Telugu characters"""
         return 'telugu' if self.telugu_pattern.search(text) else 'english'
 
+    def basic_translate(self, text):
+        """Basic fallback translation using dictionary"""
+        if not text:
+            return text
+            
+        translated_text = text.lower()
+        for english_word, telugu_word in self.basic_translations.items():
+            translated_text = translated_text.replace(english_word, telugu_word)
+        
+        # If we made some translations, show a notice
+        if translated_text != text.lower():
+            st.info("🔄 Using basic translation for common cooking terms.")
+            return translated_text
+        return text
+
     def translate_to_telugu(self, text):
         """Translate English text to Telugu"""
-        if not self.translation_available or not self.translator:
-            st.warning("⚠️ Translation service not available. Please enter text in Telugu directly.")
+        if not text or not text.strip():
             return text
-
-        try:
-            if self.detect_language(text) == 'english' and text.strip():
+            
+        # If input is already Telugu, return as-is
+        if self.detect_language(text) == 'telugu':
+            return text
+            
+        # Try Google Translate first if available
+        if self.translation_available and self.translator:
+            try:
                 result = self.translator.translate(text, src='en', dest='te')
-                return result.text
-            return text
-        except Exception as e:
-            st.warning(f"Translation warning: Could not translate '{text[:50]}...' - {e}")
-            return text
+                if result and result.text:
+                    return result.text
+            except Exception as e:
+                # Only show translation error once per session
+                if not hasattr(st.session_state, 'translation_error_shown'):
+                    st.warning(f"⚠️ Google Translate temporarily unavailable. Using basic translation.")
+                    st.session_state.translation_error_shown = True
+        
+        # Fallback to basic translation
+        if self.detect_language(text) == 'english':
+            return self.basic_translate(text)
+            
+        # If nothing else worked, show warning only once
+        if not hasattr(st.session_state, 'translation_warning_shown'):
+            st.info("💡 For best results, enter your recipe directly in Telugu.")
+            st.session_state.translation_warning_shown = True
+        
+        return text
 
     def save_recipe_to_csv(self, recipe_data, filename='recipes.csv'):
         """Save recipe data to CSV file"""

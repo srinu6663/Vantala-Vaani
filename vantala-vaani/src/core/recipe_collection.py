@@ -201,37 +201,37 @@ def main():
     st.markdown("---")
 
     # View saved recipes
-    if st.checkbox("📋 Saved Recipes చూడండి / View Saved Recipes"):
-        data_dir = project_root / "data"
-        csv_path = data_dir / "recipes.csv"
-        if csv_path.exists():
-            df = pd.read_csv(csv_path)
-            if not df.empty:
-                st.subheader(f"📊 Total Recipes: {len(df)}")
+    # if st.checkbox("📋 Saved Recipes చూడండి / View Saved Recipes"):
+    #     data_dir = project_root / "data"
+    #     csv_path = data_dir / "recipes.csv"
+    #     if csv_path.exists():
+    #         df = pd.read_csv(csv_path)
+    #         if not df.empty:
+    #             st.subheader(f"📊 Total Recipes: {len(df)}")
 
-                # Display recipes
-                for idx, row in df.iterrows():
-                    with st.expander(f"🍛 {row['Recipe Name (Telugu)']} ({row['Timestamp']})"):
-                        col1, col2 = st.columns(2)
+    #             # Display recipes
+    #             for idx, row in df.iterrows():
+    #                 with st.expander(f"🍛 {row['Recipe Name (Telugu)']} ({row['Timestamp']})"):
+    #                     col1, col2 = st.columns(2)
 
-                        with col1:
-                            st.markdown("**తెలుగు వెర్షన్ / Telugu Version:**")
-                            st.write(f"**వంటకం:** {row['Recipe Name (Telugu)']}")
-                            st.write(f"**వస్తువులు:** {row['Ingredients (Telugu)']}")
-                            st.write(f"**విధానం:** {row['Steps (Telugu)']}")
+    #                     with col1:
+    #                         st.markdown("**తెలుగు వెర్షన్ / Telugu Version:**")
+    #                         st.write(f"**వంటకం:** {row['Recipe Name (Telugu)']}")
+    #                         st.write(f"**వస్తువులు:** {row['Ingredients (Telugu)']}")
+    #                         st.write(f"**విధానం:** {row['Steps (Telugu)']}")
 
-                        with col2:
-                            if row['Original Language'] == 'English':
-                                st.markdown("**Original English Version:**")
-                                st.write(f"**Recipe:** {row['Original Recipe Name']}")
-                                st.write(f"**Ingredients:** {row['Original Ingredients']}")
-                                st.write(f"**Steps:** {row['Original Steps']}")
-                            else:
-                                st.info("Originally submitted in Telugu")
-            else:
-                st.info("📝 No recipes saved yet. Add your first recipe above!")
-        else:
-            st.info("📝 No recipes saved yet. Add your first recipe above!")
+    #                     with col2:
+    #                         if row['Original Language'] == 'English':
+    #                             st.markdown("**Original English Version:**")
+    #                             st.write(f"**Recipe:** {row['Original Recipe Name']}")
+    #                             st.write(f"**Ingredients:** {row['Original Ingredients']}")
+    #                             st.write(f"**Steps:** {row['Original Steps']}")
+    #                         else:
+    #                             st.info("Originally submitted in Telugu")
+    #         else:
+    #             st.info("📝 No recipes saved yet. Add your first recipe above!")
+    #     else:
+    #         st.info("📝 No recipes saved yet. Add your first recipe above!")
 
 if __name__ == "__main__":
     main()
