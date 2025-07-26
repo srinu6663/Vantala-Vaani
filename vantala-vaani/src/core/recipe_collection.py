@@ -179,20 +179,20 @@ def main():
 
                         # Success message
                         st.success("✅ రెసిపీ విజయవంతంగా సేవ్ అయ్యింది! / Recipe saved successfully!")
-                        st.info(f"📁 Saved to: {file_path}")
+                        # st.info(f"📁 Saved to: {file_path}")
 
-                        # Show translated version if input was English
-                        if input_language == "English":
-                            with st.expander("🔄 Telugu Translation / తెలుగు అనువాదం"):
-                                st.markdown("**వంటకం పేరు:**")
-                                st.write(telugu_recipe_name)
-                                st.markdown("**కావలసిన వస్తువులు:**")
-                                st.write(telugu_ingredients)
-                                st.markdown("**తయారీ విధానం:**")
-                                st.write(telugu_steps)
+                        # # Show translated version if input was English
+                        # if input_language == "English":
+                        #     with st.expander("🔄 Telugu Translation / తెలుగు అనువాదం"):
+                        #         st.markdown("**వంటకం పేరు:**")
+                        #         st.write(telugu_recipe_name)
+                        #         st.markdown("**కావలసిన వస్తువులు:**")
+                        #         st.write(telugu_ingredients)
+                        #         st.markdown("**తయారీ విధానం:**")
+                        #         st.write(telugu_steps)
 
                         # Clear form option
-                        if st.button("🔄 Clear Form / ఫారం క్లియర్ చేయండి"):
+                        if st.button("🔄 Clear Form"):
                             st.experimental_rerun()
 
                     except Exception as e:
