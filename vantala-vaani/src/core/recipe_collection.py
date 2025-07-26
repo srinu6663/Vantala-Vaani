@@ -209,7 +209,7 @@ def main():
         # First check session state recipes
         if st.session_state.saved_recipes:
             st.subheader(f"📊 Total Recipes in Current Session: {len(st.session_state.saved_recipes)}")
-            
+
             # Add download button for CSV
             if st.session_state.saved_recipes:
                 # Create CSV data for download
@@ -217,12 +217,12 @@ def main():
                 output = io.StringIO()
                 headers = ['Timestamp', 'Recipe Name (Telugu)', 'Ingredients (Telugu)', 'Steps (Telugu)',
                           'Original Language', 'Original Recipe Name', 'Original Ingredients', 'Original Steps']
-                
+
                 writer = csv.writer(output)
                 writer.writerow(headers)
                 for recipe in st.session_state.saved_recipes:
                     writer.writerow([recipe[header] for header in headers])
-                
+
                 csv_data = output.getvalue()
                 st.download_button(
                     label="📥 Download Recipes as CSV",
@@ -287,7 +287,7 @@ def main():
                     st.info("📝 No recipes saved yet. Add your first recipe above!")
             else:
                 st.info("📝 No recipes saved yet. Add your first recipe above!")
-                
+
         # Clear session recipes button
         if st.session_state.saved_recipes:
             if st.button("🗑️ Clear Session Recipes"):
