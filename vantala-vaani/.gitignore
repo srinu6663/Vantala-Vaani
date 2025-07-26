@@ -135,3 +135,7 @@ dmypy.json
 # Markdown files (except README.md)
 *.md
 !README.md
+
+# Personal notes
+Hand Notes.txt
+**/Hand Notes.txt
