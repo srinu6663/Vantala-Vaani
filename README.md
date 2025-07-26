@@ -47,32 +47,24 @@ vantala-vaani/
 └── requirements.txt          # 📋 Python dependencies
 ```
 
-│ ├── preprocessing_config.yaml # Processing settings
-│ └── requirements.txt # Python dependencies
-├── data/ # 📊 Data storage
-│ ├── raw/ # Original recipe submissions
-│ └── processed/ # ML-ready training data
-├── tests/ # 🧪 Test files
-├── scripts/ # 🔨 Utility scripts
-└── docs/ # 📚 Documentation
-
-````
-
 ## 🛠️ Features
 
 ### Recipe Collection
+
 - 📝 Bilingual Telugu-English web interface
 - 🔄 Automatic translation (English → Telugu)
 - 💾 CSV storage for submissions
 - 🎨 Beautiful Streamlit UI
 
 ### Data Preprocessing
+
 - 🔍 Intelligent deduplication
 - 🌐 Language detection and translation
 - 🤖 Q&A pair generation for ML training
 - 📈 Multiple export formats (JSON, HuggingFace, OpenAI)
 
 ### ML Training Ready
+
 - 🎯 Question-Answer pairs in Telugu
 - 📊 Categorized recipes (వంటకం రకం)
 - ⏱️ Difficulty and time estimates
@@ -81,9 +73,10 @@ vantala-vaani/
 ## 📱 Usage
 
 ### Interactive Menu
+
 ```bash
 python main.py
-````
+```
 
 Options:
 
