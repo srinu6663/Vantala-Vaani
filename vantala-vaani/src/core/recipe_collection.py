@@ -72,7 +72,7 @@ def main():
     """, unsafe_allow_html=True)
 
     # Title in both languages
-    st.title("🍛 వంటల వాణి - Recipe Collection")
+    st.title("🍛 వంటల వాణి - Recipe Collectionss")
     st.title("🍛 Family Recipe Collection")
 
     st.markdown("---")
