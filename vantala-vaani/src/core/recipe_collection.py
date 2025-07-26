@@ -105,29 +105,29 @@ def main():
                     height=200
                 )
 
-        with col2:
-            # st.markdown("### Preview / మునుజూపు")
+        # with col2:
+        #     # st.markdown("### Preview / మునుజూపు")
 
-            if recipe_name or ingredients or steps:
-                if input_language == "English":
-                    st.info("📝 Auto-translation to Telugu will be applied when saving")
+        #     if recipe_name or ingredients or steps:
+        #         if input_language == "English":
+        #             st.info("📝 Auto-translation to Telugu will be applied when saving")
 
-                    # Show preview
-                    st.markdown("**Current Input:**")
-                    if recipe_name:
-                        st.write(f"**Recipe:** {recipe_name}")
-                    if ingredients:
-                        st.write(f"**Ingredients:** {ingredients[:100]}...")
-                    if steps:
-                        st.write(f"**Steps:** {steps[:100]}...")
-                else:
-                    st.success("✅ Telugu input detected")
-                    if recipe_name:
-                        st.write(f"**వంటకం:** {recipe_name}")
-                    if ingredients:
-                        st.write(f"**వస్తువులు:** {ingredients[:100]}...")
-                    if steps:
-                        st.write(f"**విధానం:** {steps[:100]}...")
+        #             # Show preview
+        #             st.markdown("**Current Input:**")
+        #             if recipe_name:
+        #                 st.write(f"**Recipe:** {recipe_name}")
+        #             if ingredients:
+        #                 st.write(f"**Ingredients:** {ingredients[:100]}...")
+        #             if steps:
+        #                 st.write(f"**Steps:** {steps[:100]}...")
+        #         else:
+        #             st.success("✅ Telugu input detected")
+        #             if recipe_name:
+        #                 st.write(f"**వంటకం:** {recipe_name}")
+        #             if ingredients:
+        #                 st.write(f"**వస్తువులు:** {ingredients[:100]}...")
+        #             if steps:
+        #                 st.write(f"**విధానం:** {steps[:100]}...")
 
     st.markdown("---")
 
