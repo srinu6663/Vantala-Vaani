@@ -18,7 +18,7 @@ recipe_utils = RecipeUtils()
 
 def main():
     st.set_page_config(
-        page_title="వంటల వాణి - Recipe Collection",
+        page_title="వంటల వాణి - Recipe Collectionss",
         page_icon="🍛",
         layout="wide"
     )
