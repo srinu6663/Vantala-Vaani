@@ -123,7 +123,8 @@ dmypy.json
 .pyre/
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
+.streamlit/credentials.toml
 
 # Data files (optional - remove if you want to track data)
 # data/processed/
