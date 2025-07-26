@@ -131,3 +131,7 @@ dmypy.json
 
 # VS Code
 .vscode/
+
+# Markdown files (except README.md)
+*.md
+!README.md
