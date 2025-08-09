@@ -1,5 +1,5 @@
-streamlit==1.29.0
-requests==2.31.0
-python-dotenv==1.0.0
-pydantic==2.5.0
-pyjwt==2.8.0
+streamlit
+requests
+python-dotenv
+pydantic
+PyJWT
