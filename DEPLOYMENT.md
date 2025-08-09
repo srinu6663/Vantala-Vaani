@@ -9,6 +9,7 @@
 ## Step 1: Prepare Your Repository
 
 ### 1.1 Initialize Git Repository
+
 ```bash
 # In your project directory (d:\Projects\Food\)
 git init
@@ -17,12 +18,14 @@ git commit -m "Initial commit: Vantala Vaani food recipe uploader"
 ```
 
 ### 1.2 Create GitHub Repository
+
 1. Go to https://github.com/new
 2. Create a new repository named `vantala-vaani` (or your preferred name)
 3. Make it **Public** (required for free Streamlit Cloud)
 4. Don't initialize with README (you already have files)
 
 ### 1.3 Push to GitHub
+
 ```bash
 # Replace USERNAME with your GitHub username
 git remote add origin https://github.com/USERNAME/vantala-vaani.git
@@ -33,17 +36,20 @@ git push -u origin main
 ## Step 2: Deploy to Streamlit Cloud
 
 ### 2.1 Connect to Streamlit Cloud
+
 1. Go to https://share.streamlit.io/
 2. Sign in with your GitHub account
 3. Click "New app"
 
 ### 2.2 Configure Your App
+
 - **Repository**: Select your `vantala-vaani` repository
 - **Branch**: `main`
 - **Main file path**: `app.py`
 - **App URL**: Choose a custom URL (e.g., `your-username-vantala-vaani`)
 
 ### 2.3 Add Secrets
+
 Before deploying, click "Advanced settings" → "Secrets" and add:
 
 ```toml
@@ -58,6 +64,7 @@ MAX_UPLOAD_MB = "50"
 **⚠️ Important**: Replace `CORPUSAPP_TOKEN` with your actual token from the `.env` file.
 
 ### 2.4 Deploy
+
 Click "Deploy!" and wait for the app to build and start.
 
 ## Step 3: Verify Deployment
@@ -65,6 +72,7 @@ Click "Deploy!" and wait for the app to build and start.
 Your app will be available at: `https://your-app-name.streamlit.app/`
 
 Test the following:
+
 - ✅ App loads without errors
 - ✅ Environment variables are loaded
 - ✅ Text recipe submission works
@@ -75,10 +83,12 @@ Test the following:
 ### Common Issues:
 
 1. **ModuleNotFoundError**
+
    - Check that all dependencies are in `requirements.txt`
    - Ensure no relative imports are broken
 
 2. **Configuration Errors**
+
    - Verify all secrets are added correctly in Streamlit Cloud
    - Check secret names match exactly (case-sensitive)
 
@@ -87,6 +97,7 @@ Test the following:
    - Check if your token has expired
 
 ### Checking Logs:
+
 - Click "Manage app" in Streamlit Cloud
 - View the logs to see any error messages
 
@@ -113,6 +124,7 @@ Streamlit Cloud will automatically redeploy when you push to the main branch.
 ## 📱 Sharing Your App
 
 Once deployed, share your app URL with users:
+
 - `https://your-app-name.streamlit.app/`
 
 Users can submit food recipes directly through the web interface without needing any technical setup!
