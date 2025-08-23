@@ -33,7 +33,7 @@ class RecordService:
                 metadata["difficulty"] = difficulty
             
             if metadata:
-                payload["metadata"] = metadata
+                payload["metadata"] = json.dumps(metadata)
             
             # Make the API request
             response = requests.post(
@@ -48,19 +48,19 @@ class RecordService:
                 record_id = response_data.get("id", "Unknown")
                 return True, f"Text recipe submitted successfully!", record_id
             elif response.status_code == 401:
-                return False, "Authentication failed. Please check your access token."
+                return False, "Authentication failed. Please check your access token.", None
             elif response.status_code == 400:
                 error_detail = response.json().get("detail", "Bad request")
-                return False, f"Invalid data: {error_detail}"
+                return False, f"Invalid data: {error_detail}", None
             else:
-                return False, f"Submission failed with status code: {response.status_code}"
+                return False, f"Submission failed with status code: {response.status_code}", None
                 
         except requests.exceptions.Timeout:
-            return False, "Request timed out. Please try again."
+            return False, "Request timed out. Please try again.", None
         except requests.exceptions.ConnectionError:
-            return False, "Connection error. Please check your internet connection."
+            return False, "Connection error. Please check your internet connection.", None
         except Exception as e:
-            return False, f"Unexpected error: {str(e)}"
+            return False, f"Unexpected error: {str(e)}", None
     
     def submit_media_recipe(self, uploaded_file, media_type: str, recipe_name: str = "", 
                            cuisine_type: str = "", cooking_time: str = "", 
@@ -101,21 +101,21 @@ class RecordService:
                 record_id = response_data.get("id", "Unknown")
                 return True, f"{media_type.capitalize()} recipe uploaded successfully!", record_id
             elif response.status_code == 401:
-                return False, "Authentication failed. Please check your access token."
+                return False, "Authentication failed. Please check your access token.", None
             elif response.status_code == 400:
                 error_detail = response.json().get("detail", "Bad request")
-                return False, f"Invalid file or data: {error_detail}"
+                return False, f"Invalid file or data: {error_detail}", None
             elif response.status_code == 413:
-                return False, "File too large. Please use a smaller file."
+                return False, "File too large. Please use a smaller file.", None
             else:
-                return False, f"Upload failed with status code: {response.status_code}"
+                return False, f"Upload failed with status code: {response.status_code}", None
                 
         except requests.exceptions.Timeout:
-            return False, "Upload timed out. Please try with a smaller file or check your connection."
+            return False, "Upload timed out. Please try with a smaller file or check your connection.", None
         except requests.exceptions.ConnectionError:
-            return False, "Connection error. Please check your internet connection."
+            return False, "Connection error. Please check your internet connection.", None
         except Exception as e:
-            return False, f"Unexpected error: {str(e)}"
+            return False, f"Unexpected error: {str(e)}", None
     
     def verify_submission(self, record_id: str) -> Tuple[bool, dict]:
         """Verify that a record was successfully submitted"""
