@@ -1,0 +1,148 @@
+📘 Project Documentation: Food Recipe Collection App
+📌 Project Overview
+
+The Food Recipe Collection App is a Streamlit-based data collection tool that allows users to submit recipes in text, audio, and video formats.
+Collected data is uploaded to the CorpusApp backend under the Food category.
+
+The project’s main purpose is to gather a corpus of culinary knowledge (traditional recipes, cooking methods, regional vocabulary) for Indic languages.
+
+🎯 Project Goals
+
+Collect recipes in multiple formats (text, audio, video).
+
+Store all submissions under the Food category in CorpusApp.
+
+Provide a simple and user-friendly UI.
+
+Ensure API integration with authentication.
+
+Build a scalable structure that can be extended later (metadata, search, analytics).
+
+🏗 Project Structure
+recipe-collector/
+│── docs/                      # Documentation, API references, project notes
+│   └── API_REFERENCE.md
+│
+│── streamlit_app/             # Streamlit application code
+│   ├── app.py                 # Main Streamlit app
+│   ├── components/            # Optional custom UI components
+│   ├── services/              # API communication logic
+│   │   ├── auth_service.py    # Authentication handling
+│   │   └── record_service.py  # Upload & fetch records
+│   └── utils/                 # Helper functions (file handling, logging)
+│
+│── tests/                     # For testing API calls & app flows
+│   └── test_api.py
+│
+│── requirements.txt           # Dependencies
+│── README.md                  # Project overview
+│── .env                       # Environment variables (token, API base, category_id)
+
+⚙️ Setup Instructions
+1. Install Dependencies
+
+Python 3.8+
+
+Install Streamlit + Requests library
+
+pip install streamlit requests python-dotenv
+
+2. Configure Environment
+
+Create a .env file for sensitive data:
+
+ACCESS_TOKEN=<your_bearer_token>
+CATEGORY_ID=833299f6-ff1c-4fde-804f-6d3b3877c76e
+API_BASE=https://<corpus-app-domain>
+
+3. Run Application
+streamlit run streamlit_app/app.py
+
+📡 API Integration Plan
+1. Authentication
+
+Use Bearer Token (provided by internship team).
+
+Attach token in headers:
+
+Authorization: Bearer <token>
+
+2. Endpoints Used
+
+Text Recipe Submission
+
+POST /api/v1/records/
+
+Send JSON payload with category_id, media_type=text, content=recipe.
+
+Audio/Video Upload
+
+POST /api/v1/records/upload
+
+Send multipart/form-data: file + category_id + media_type.
+
+Verify Upload
+
+GET /api/v1/records/
+
+Fetch list of uploaded recipes to confirm submission.
+
+🧪 Testing Plan
+
+Text Submission
+
+Enter a sample recipe and upload.
+
+Check /records/ endpoint to verify entry.
+
+Audio Submission
+
+Upload .mp3 file.
+
+Verify stored record in backend.
+
+Video Submission
+
+Upload .mp4 file.
+
+Confirm entry appears in backend.
+
+Error Handling
+
+Try empty form → app should warn.
+
+Try uploading unsupported file → app should reject.
+
+Try expired token → app should show authentication error.
+
+📊 Future Enhancements
+
+Recipe Metadata: name, cuisine, cooking time, ingredients, difficulty.
+
+Language Support: allow Indic language text inputs (Telugu, Hindi, etc.).
+
+Search & Browse: fetch uploaded recipes and display in Streamlit.
+
+Analytics Dashboard: show total recipes, audio vs video ratio, user contributions.
+
+Speech-to-Text: auto-generate text from uploaded audio.
+
+📑 Deliverables
+
+Streamlit Application (working UI + API integration).
+
+Documentation: README.md + API_REFERENCE.md (with endpoints used).
+
+Test Logs: evidence of successful uploads (screenshots/logs).
+
+Final Report: summary of data collected & contributions.
+
+💡 Tips for Internship Submission
+
+Keep UI simple (radio buttons for text/audio/video).
+
+Always attach category_id = Food.
+
+Maintain a small log of submissions (date, format, status).
+
+Add screenshots of app + API success response in your report.
