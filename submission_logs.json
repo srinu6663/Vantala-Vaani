@@ -1,9 +1,9 @@
 [
   {
-    "timestamp": "2025-08-23T05:22:51.013321",
-    "format": "Text",
-    "recipe_name": "\u0c17\u0c41\u0c24\u0c4d\u0c24\u0c3f \u0c35\u0c02\u0c15\u0c3e\u0c2f \u0c15\u0c42\u0c30",
-    "status": "Failed",
-    "record_id": null
+    "timestamp": "2025-08-25T18:36:55.212690",
+    "format": "Image",
+    "recipe_name": "food",
+    "status": "Success",
+    "record_id": "Unknown"
   }
 ]
