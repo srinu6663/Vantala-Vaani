@@ -1,9 +1,7 @@
 import { getAuthHeaders } from "./auth";
 import type { LoginCredentials } from "@shared/schema";
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.corpus.swecha.org' 
-  : '';
+const API_BASE_URL = '';
 
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
   const url = API_BASE_URL + endpoint;

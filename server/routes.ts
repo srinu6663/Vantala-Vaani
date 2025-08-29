@@ -39,15 +39,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint
   app.post("/api/v1/auth/login", async (req, res) => {
     try {
-      const { email, password } = loginSchema.parse(req.body);
+      const { mobile, password } = loginSchema.parse(req.body);
       
-      const user = await storage.getUserByEmail(email);
+      const user = await storage.getUserByMobile(mobile);
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, mobile: user.mobile },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         token,
         user: {
           id: user.id,
-          email: user.email,
+          mobile: user.mobile,
           name: user.name,
         }
       });

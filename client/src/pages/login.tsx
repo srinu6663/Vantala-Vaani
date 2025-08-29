@@ -22,7 +22,7 @@ export default function LoginPage() {
   const form = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      mobile: "",
       password: "",
     },
   });
@@ -60,17 +60,18 @@ export default function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
+                    <FormLabel>Mobile Number</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your@email.com"
-                        data-testid="input-email"
+                        type="tel"
+                        placeholder="9876543210"
+                        data-testid="input-mobile"
                         className="bg-input border-border focus:ring-ring"
+                        maxLength={10}
                       />
                     </FormControl>
                     <FormMessage />

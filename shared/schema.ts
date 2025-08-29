@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull().unique(),
+  mobile: text("mobile").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -29,7 +29,7 @@ export const contributions = pgTable("contributions", {
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
-  email: true,
+  mobile: true,
   password: true,
   name: true,
 });
@@ -45,7 +45,7 @@ export const insertContributionSchema = createInsertSchema(contributions).pick({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  mobile: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

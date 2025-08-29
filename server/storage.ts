@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByMobile(mobile: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getUserContributions(userId: string): Promise<Contribution[]>;
   createContribution(contribution: InsertContribution & { userId: string; filePath?: string; fileSize?: number; mimeType?: string }): Promise<Contribution>;
@@ -21,7 +21,7 @@ export class MemStorage implements IStorage {
     // Create a demo user for testing
     const demoUser: User = {
       id: "demo-user-id",
-      email: "demo@example.com",
+      mobile: "9876543210",
       password: "password123", // In production, this would be hashed
       name: "Demo User",
       createdAt: new Date(),
@@ -89,9 +89,9 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
+  async getUserByMobile(mobile: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
-      (user) => user.email === email,
+      (user) => user.mobile === mobile,
     );
   }
 
