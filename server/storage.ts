@@ -90,8 +90,15 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByMobile(mobile: string): Promise<User | undefined> {
+    // Normalize the input mobile for search
+    const normalizedInput = mobile.startsWith('+91') ? mobile : `+91${mobile}`;
+    
     return Array.from(this.users.values()).find(
-      (user) => user.mobile === mobile,
+      (user) => {
+        // Normalize stored mobile for comparison
+        const normalizedStored = user.mobile.startsWith('+91') ? user.mobile : `+91${user.mobile}`;
+        return normalizedStored === normalizedInput;
+      }
     );
   }
 

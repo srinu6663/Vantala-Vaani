@@ -41,10 +41,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { mobile, password } = loginSchema.parse(req.body);
       
-      // Normalize mobile number for comparison
-      const normalizedMobile = mobile.startsWith('+91') ? mobile : `+91${mobile}`;
+      console.log('Login attempt:', { mobile, password });
       
-      const user = await storage.getUserByMobile(normalizedMobile);
+      const user = await storage.getUserByMobile(mobile);
+      console.log('Found user:', user ? { id: user.id, mobile: user.mobile, name: user.name } : 'No user found');
+      
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
