@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210 40% 96%);
+  --foreground: hsl(210 40% 8%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(210 40% 8%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 40% 8%);
+  --primary: hsl(210 90% 48%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(180 60% 35%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(210 40% 92%);
+  --muted-foreground: hsl(210 40% 40%);
+  --accent: hsl(210 40% 88%);
+  --accent-foreground: hsl(210 40% 12%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(210 40% 88%);
+  --input: hsl(210 40% 88%);
+  --ring: hsl(210 90% 48%);
+  --radius: 12px;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.dark {
+  --background: hsl(210 40% 8%);
+  --foreground: hsl(210 40% 95%);
+  --card: hsl(210 40% 10%);
+  --card-foreground: hsl(210 40% 95%);
+  --popover: hsl(210 40% 10%);
+  --popover-foreground: hsl(210 40% 95%);
+  --primary: hsl(210 90% 60%);
+  --primary-foreground: hsl(210 40% 8%);
+  --secondary: hsl(180 60% 45%);
+  --secondary-foreground: hsl(210 40% 8%);
+  --muted: hsl(210 40% 15%);
+  --muted-foreground: hsl(210 40% 65%);
+  --accent: hsl(210 40% 15%);
+  --accent-foreground: hsl(210 40% 90%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(210 40% 15%);
+  --input: hsl(210 40% 15%);
+  --ring: hsl(210 90% 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+.app-container {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.upload-progress {
+  transition: width 0.3s ease;
+}
+
+.notification {
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
