@@ -45,7 +45,7 @@ export const insertContributionSchema = createInsertSchema(contributions).pick({
 });
 
 export const loginSchema = z.object({
-  mobile: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
+  mobile: z.string().regex(/^(\+91)?[6-9]\d{9}$/, "Please enter a valid mobile number (10 digits or +91 followed by 10 digits)"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

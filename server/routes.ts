@@ -41,7 +41,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { mobile, password } = loginSchema.parse(req.body);
       
-      const user = await storage.getUserByMobile(mobile);
+      // Normalize mobile number for comparison
+      const normalizedMobile = mobile.startsWith('+91') ? mobile : `+91${mobile}`;
+      
+      const user = await storage.getUserByMobile(normalizedMobile);
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid credentials" });
       }

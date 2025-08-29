@@ -21,7 +21,7 @@ export class MemStorage implements IStorage {
     // Create a demo user for testing
     const demoUser: User = {
       id: "demo-user-id",
-      mobile: "9876543210",
+      mobile: "+919876543210",
       password: "password123", // In production, this would be hashed
       name: "Demo User",
       createdAt: new Date(),

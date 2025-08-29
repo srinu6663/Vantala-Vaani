@@ -68,10 +68,10 @@ export default function LoginPage() {
                       <Input
                         {...field}
                         type="tel"
-                        placeholder="9876543210"
+                        placeholder="+919876543210 or 9876543210"
                         data-testid="input-mobile"
                         className="bg-input border-border focus:ring-ring"
-                        maxLength={10}
+                        maxLength={13}
                       />
                     </FormControl>
                     <FormMessage />
