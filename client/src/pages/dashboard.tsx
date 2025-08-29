@@ -7,43 +7,46 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UploadModal } from "@/components/upload-modal";
 import { useTheme } from "@/components/theme-provider";
 import { useNotification } from "@/components/notification";
-import { getUserContributions } from "@/lib/api";
+import { getUserContributions, getCurrentUser } from "@/lib/api";
 import { getAuthToken, removeAuthToken } from "@/lib/auth";
 import { Database, Upload, FileText, Mic, Video, Images, Moon, Sun, LogOut, Plus, MoreVertical } from "lucide-react";
 import type { Contribution } from "@shared/schema";
 
+
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>('User');
   const { theme, toggleTheme } = useTheme();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const token = getAuthToken();
-    const user = localStorage.getItem('currentUser');
-    
-    if (!token || !user) {
+    const userId = sessionStorage.getItem('userId');
+    if (!token || !userId) {
       setLocation('/');
       return;
     }
-
-    try {
-      setCurrentUser(JSON.parse(user));
-    } catch {
-      setLocation('/');
-    }
+    setUserId(userId);
+    // Fetch user name from API
+    getCurrentUser()
+      .then((user) => {
+        setUserName(user.name || 'User');
+      })
+      .catch(() => setUserName('User'));
   }, [setLocation]);
 
-  const { data: contributions, isLoading } = useQuery<Contribution[]>({
-    queryKey: ['/api/v1/users', currentUser?.id, 'contributions'],
-    enabled: !!currentUser?.id,
+  const { data: contribData, isLoading } = useQuery({
+    queryKey: ['/api/v1/users', userId, 'contributions'],
+    queryFn: () => userId ? getUserContributions(userId) : Promise.resolve(null),
+    enabled: !!userId,
   });
 
   const handleLogout = () => {
     removeAuthToken();
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('userId');
     queryClient.clear();
     showNotification('Info', 'You have been logged out', 'info');
     setLocation('/');
@@ -68,21 +71,16 @@ export default function DashboardPage() {
     }
   };
 
-  const getContributionStats = () => {
-    if (!contributions) return { total: 0, text: 0, audio: 0, video: 0, image: 0 };
-    
-    return {
-      total: contributions.length,
-      text: contributions.filter(c => c.type === 'text').length,
-      audio: contributions.filter(c => c.type === 'audio').length,
-      video: contributions.filter(c => c.type === 'video').length,
-      image: contributions.filter(c => c.type === 'image').length,
-    };
+  // New API returns structured object, so stats are direct
+  const stats = {
+    total: contribData?.total_contributions || 0,
+    text: contribData?.contributions_by_media_type?.text || 0,
+    audio: contribData?.contributions_by_media_type?.audio || 0,
+    video: contribData?.contributions_by_media_type?.video || 0,
+    image: contribData?.contributions_by_media_type?.image || 0,
   };
 
-  const stats = getContributionStats();
-
-  if (!currentUser) {
+  if (!userId) {
     return <div className="min-h-screen bg-background" />;
   }
 
@@ -93,12 +91,12 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Database className="text-primary-foreground h-4 w-4" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-xl">
+                <span role="img" aria-label="logo">🍽️</span>
               </div>
-              <h1 className="text-xl font-semibold text-card-foreground">Swecha Corpus</h1>
+              <h1 className="text-xl font-semibold text-card-foreground">Vantala Vaani</h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
@@ -109,13 +107,25 @@ export default function DashboardPage() {
               >
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
+              <Button
+                onClick={() => setShowUploadModal(true)}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                size="sm"
+                data-testid="button-navbar-upload"
+                title="Upload Contribution"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Upload
+              </Button>
               <div className="flex items-center space-x-2 text-card-foreground">
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground text-sm font-medium">
-                    {currentUser.name.charAt(0).toUpperCase()}
+                  <span className="text-primary-foreground text-lg font-bold">
+                    {userName ? userName.charAt(0).toUpperCase() : '?'}
                   </span>
                 </div>
-                <span>{currentUser.name}</span>
+                <span className="font-medium">
+                  {userName}
+                </span>
               </div>
               <Button
                 variant="ghost"
@@ -155,7 +165,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -171,7 +181,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -187,7 +197,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -240,7 +250,7 @@ export default function DashboardPage() {
               <h3 className="text-xl font-semibold text-card-foreground">Recent Contributions</h3>
               <p className="text-muted-foreground">Your latest uploads and submissions</p>
             </div>
-            
+
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
@@ -254,59 +264,73 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-            ) : contributions && contributions.length > 0 ? (
-              <div className="space-y-4">
-                {contributions.slice(0, 5).map((contribution) => (
-                  <div
-                    key={contribution.id}
-                    className="flex items-center justify-between p-4 hover:bg-accent/50 rounded-lg transition-colors"
-                    data-testid={`contribution-${contribution.id}`}
+            ) : (() => {
+              if (contribData) {
+                const allContributions = [
+                  ...(contribData.text_contributions || []),
+                  ...(contribData.audio_contributions || []),
+                  ...(contribData.image_contributions || []),
+                  ...(contribData.video_contributions || []),
+                ];
+                allContributions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                if (allContributions.length > 0) {
+                  return (
+                    <div className="space-y-4">
+                      {allContributions.slice(0, 5).map((contribution) => (
+                        <div
+                          key={contribution.id}
+                          className="flex items-center justify-between p-4 hover:bg-accent/50 rounded-lg transition-colors"
+                          data-testid={`contribution-${contribution.id}`}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                              {getContributionIcon(contribution.type || contribution.media_type || 'text')}
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-card-foreground">{contribution.title}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {(contribution.type || contribution.media_type || 'text').charAt(0).toUpperCase() + (contribution.type || contribution.media_type || 'text').slice(1)} • {' '}
+                                {contribution.timestamp ? new Date(contribution.timestamp).toLocaleDateString() : 'Recently'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(contribution.status || (contribution.reviewed ? 'approved' : 'processing'))}`}>
+                              {(contribution.status || (contribution.reviewed ? 'approved' : 'processing')).charAt(0).toUpperCase() + (contribution.status || (contribution.reviewed ? 'approved' : 'processing')).slice(1)}
+                            </span>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      {allContributions.length > 5 && (
+                        <div className="pt-4 border-t border-border">
+                          <Button variant="ghost" className="text-primary hover:text-primary/80 font-medium text-sm">
+                            View All Contributions →
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+              }
+              // Fallback: No contributions
+              return (
+                <div className="text-center py-8">
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <h4 className="text-lg font-medium text-card-foreground mb-2">No contributions yet</h4>
+                  <p className="text-muted-foreground mb-4">Start by uploading your first contribution</p>
+                  <Button
+                    onClick={() => setShowUploadModal(true)}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        {getContributionIcon(contribution.type)}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-card-foreground">{contribution.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {contribution.type.charAt(0).toUpperCase() + contribution.type.slice(1)} • {' '}
-                          {contribution.createdAt ? new Date(contribution.createdAt).toLocaleDateString() : 'Recently'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(contribution.status)}`}>
-                        {contribution.status.charAt(0).toUpperCase() + contribution.status.slice(1)}
-                      </span>
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                
-                {contributions.length > 5 && (
-                  <div className="pt-4 border-t border-border">
-                    <Button variant="ghost" className="text-primary hover:text-primary/80 font-medium text-sm">
-                      View All Contributions →
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h4 className="text-lg font-medium text-card-foreground mb-2">No contributions yet</h4>
-                <p className="text-muted-foreground mb-4">Start by uploading your first contribution</p>
-                <Button
-                  onClick={() => setShowUploadModal(true)}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Contribution
-                </Button>
-              </div>
-            )}
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Contribution
+                  </Button>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
@@ -315,7 +339,7 @@ export default function DashboardPage() {
       <UploadModal
         open={showUploadModal}
         onOpenChange={setShowUploadModal}
-        userId={currentUser.id}
+        userId={userId}
       />
     </div>
   );

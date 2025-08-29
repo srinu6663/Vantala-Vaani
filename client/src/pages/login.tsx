@@ -11,6 +11,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useNotification } from "@/components/notification";
 import { loginUser } from "@/lib/api";
 import { setAuthToken } from "@/lib/auth";
+
+// Helper to decode JWT and extract user id (sub)
+function getUserIdFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
+}
 import { loginSchema, type LoginCredentials } from "@shared/schema";
 import { Database, Eye, EyeOff, Loader2 } from "lucide-react";
 
@@ -30,10 +40,17 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      setAuthToken(data.token);
-      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      setAuthToken(data.access_token);
+      localStorage.setItem('token_type', data.token_type || 'bearer');
+      sessionStorage.setItem('userId', getUserIdFromToken(data.access_token) || '');
+      // Store user name if available
+      if (data.user && data.user.name) {
+        sessionStorage.setItem('userName', data.user.name);
+      } else {
+        sessionStorage.setItem('userName', 'User');
+      }
       showNotification('Success', 'Login successful!', 'success');
-      setTimeout(() => setLocation('/dashboard'), 1000);
+      setLocation('/dashboard');
     },
     onError: (error: any) => {
       showNotification('Error', error.message || 'Login failed', 'error');

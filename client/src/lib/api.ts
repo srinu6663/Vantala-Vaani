@@ -1,16 +1,28 @@
+// Fetch current user info
+export async function getCurrentUser() {
+  const response = await apiRequest('/api/v1/auth/me');
+  return response.json();
+}
 import { getAuthHeaders } from "./auth";
 import type { LoginCredentials } from "@shared/schema";
 
-const API_BASE_URL = '';
+const API_BASE_URL = 'https://api.corpus.swecha.org';
 
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
+
   const url = API_BASE_URL + endpoint;
+  let headers = { ...getAuthHeaders(), ...options.headers };
+
+  // If body is FormData, remove all headers except Authorization so browser sets Content-Type
+  if (options.body instanceof FormData) {
+    headers = Object.fromEntries(
+      Object.entries(headers).filter(([k]) => k.toLowerCase() === 'authorization')
+    );
+  }
+
   const response = await fetch(url, {
     ...options,
-    headers: {
-      ...getAuthHeaders(),
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -22,19 +34,25 @@ async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<
 }
 
 export async function loginUser(credentials: LoginCredentials) {
+  // The API expects 'phone' instead of 'mobile'
+  const payload = { phone: credentials.mobile, password: credentials.password };
+  console.log('Login payload:', payload);
   const response = await apiRequest('/api/v1/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(credentials),
+    body: JSON.stringify(payload),
   });
-
-  return response.json();
+  console.log('Login response status:', response.status);
+  const data = await response.clone().json().catch(() => ({}));
+  console.log('Login response data:', data);
+  return data;
 }
 
 export async function getUserContributions(userId: string) {
   const response = await apiRequest(`/api/v1/users/${userId}/contributions`);
+  // The API returns a structured object, not a flat array
   return response.json();
 }
 
